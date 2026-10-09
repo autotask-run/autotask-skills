@@ -80,7 +80,7 @@ claude mcp add --transport http autotask https://app.autotask.run/mcp/stream \
 各 CLI 的用户级技能目录：Codex `~/.codex/skills/`、ZCode `~/.zcode/skills/`（跨工具共享可用 `~/.agents/skills/`）、Claude Code `~/.claude/skills/`。技能目录必须直接位于技能目录下（`<skills>/<skill-name>/SKILL.md`）：
 
 ```bash
-git clone <本仓库发布地址> /tmp/autotask-skills
+git clone https://github.com/autotask-run/autotask-skills.git /tmp/autotask-skills
 mkdir -p ~/.codex/skills
 cp -r /tmp/autotask-skills/autotask-todo /tmp/autotask-skills/autotask-notes ~/.codex/skills/
 ```
@@ -88,7 +88,7 @@ cp -r /tmp/autotask-skills/autotask-todo /tmp/autotask-skills/autotask-notes ~/.
 想跟随仓库更新可以用软链代替拷贝：
 
 ```bash
-git clone <本仓库发布地址> ~/skills-repos/autotask-skills
+git clone https://github.com/autotask-run/autotask-skills.git ~/skills-repos/autotask-skills
 ln -s ~/skills-repos/autotask-skills/autotask-todo ~/.codex/skills/autotask-todo
 ln -s ~/skills-repos/autotask-skills/autotask-notes ~/.codex/skills/autotask-notes
 ```
@@ -117,10 +117,11 @@ git branch -D autotask-skills-pub
 
 ### 4.2 GitHub 托管
 
+公开仓库 `github.com/autotask-run/autotask-skills` 已创建；后续更新从 monorepo 重新拆分推送即可：
+
 ```bash
 git subtree split -P packages/skills/external -b autotask-skills-pub
-git remote add autotask-skills git@github.com:<org>/autotask-skills.git   # 一次性
-git push autotask-skills autotask-skills-pub:master
+git push https://github.com/autotask-run/autotask-skills.git autotask-skills-pub:master
 git branch -D autotask-skills-pub
 ```
 
