@@ -1,16 +1,29 @@
 ---
 name: autotask-todo
-description: 管理用户的 AutoTask 个人待办（个人工作区「捕获清单/待办页」同源数据）。当用户要求记录待办、记一下某件事、稍后提醒、安排日程、询问"今天/本周有什么事"、汇报完成某事、整理或改期任务、做日/周复盘时使用。触发词包括：待办、任务清单、提醒、日程、改期、复盘、完成/勾掉某事。
+description: 管理用户的 AutoTask 个人待办（个人工作区「捕获清单/待办页」同源数据）。当用户要求记录待办、记一下某件事、稍后提醒、安排日程、询问"今天/本周有什么事"、汇报完成某事、整理或改期任务、做日/周复盘时使用；当用户要求接入/配置/修复 AutoTask MCP 连接时也使用本技能的接入章节。触发词包括：待办、任务清单、提醒、日程、改期、复盘、完成/勾掉某事、接入 autotask。
 ---
 
 # AutoTask 个人待办
 
 通过 AutoTask MCP 服务端（`autotask` MCP server）的 `*_personal_todo*` 工具，直接读写用户在 AutoTask 个人版的待办。数据与 AutoTask 待办页实时同源；所有工具都由服务端强制限定在调用者本人的个人工作区，无法（也无需）指定工作区。
 
-## 前置条件
+## 接入自检与自助配置
 
-1. 客户端已配置 `autotask` MCP server 并成功连接（`tools/list` 里能看到 `list_personal_todos` 等工具）。未配置时按技能仓库 README 的「MCP 接入」一节操作。
-2. API token 需要 `autotask:read` + `todo:write` 权限；只读场景（查询/复盘）仅需 `autotask:read`。
+本技能是给 Agent 自己用的：不依赖人工读文档，Agent 按本节即可完成接入与修复。
+
+**自检**：当前会话能调到 `list_personal_todos` 即已接入。调不到（或调用报连接错误）时按下面步骤配置，配置完成后需重启客户端或新开会话再验证。
+
+1. **拿 token**（二选一，优先 A）：
+   - A. 请用户在 AutoTask 网页 「设置 → API 令牌」 创建一个 API token，勾选 scope：`mcp:access`、`autotask:read`、`todo:write`。token 只展示一次，请用户提供。
+   - B. 用户机器装有 AutoTask CLI（`autotask` 命令）时，代跑 `autotask login --server <server>` 完成交互登录，之后可用 `autotask config setup codex|claude-code` 一键写入（stdio 桥，免手工管理 token）。
+2. **写 MCP 配置**（端点 `<server>/mcp/stream`；自部署实例把 `https://app.autotask.run` 换成实际地址）。**合并写入，不得覆盖用户已有配置**：
+   - ZCode：`~/.zcode/cli/config.json` 的 `mcp.servers` 下加
+     `"autotask": {"type": "http", "url": "https://app.autotask.run/mcp/stream", "headers": {"Authorization": "Bearer <token>"}}`（工作区级则放 `<repo>/.zcode/config.json`）。
+   - Codex：`~/.codex/config.toml` 加 `[mcp_servers.autotask]`，`url = "https://app.autotask.run/mcp/stream"`、`bearer_token_env_var = "AUTOTASK_TOKEN"`，并请用户在 shell 配置里 `export AUTOTASK_TOKEN=<token>`。
+   - Claude Code：`claude mcp add --transport http autotask https://app.autotask.run/mcp/stream --header "Authorization: Bearer <token>"`。
+3. **验证**：新会话里 `tools/list` 应出现本技能列出的 7 个 `*_personal_todo*` 工具；仍失败时检查 token scope、端点 URL、客户端 MCP 面板报错，不要反复重试连接。
+
+token 只写入用户本机配置/环境变量，不得提交进任何仓库或写进对话产物文件。
 
 ## 工具速查
 

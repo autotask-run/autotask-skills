@@ -9,6 +9,14 @@
 
 服务端强制把所有工具限定在调用者本人的个人工作区（个人待办 / 默认笔记知识库），token 泄露也只会暴露该用户自己的数据。
 
+## 0. 给外部 Agent 的自助接入（推荐分发方式）
+
+两个 SKILL.md 都是**写给 Agent 自己看的**：接入自检、token 获取、各客户端 MCP 配置写法、失败排查全部内嵌在技能正文里，Agent 拿到技能包后不需要人工文档即可完成接入和修复。给用户的最短上手流程：
+
+1. 在 AutoTask 网页 「设置 → API 令牌」创建一个 API token（scope 见下文「前置条件」）。
+2. 把本仓库的 git URL（见「发布」）和 token 交给你的 Agent（zcode / codex / claude-code），说一句"按这个技能仓库接入 AutoTask 待办/笔记"。
+3. Agent 会自行：克隆仓库 → 把技能目录装进自己的 skills 目录 → 写 MCP 配置（合并写入，不覆盖已有配置）→ 重启验证。
+
 ## 1. 前置条件
 
 1. AutoTask 账号（线上 `https://app.autotask.run`，自部署则用你的 server 地址）。
